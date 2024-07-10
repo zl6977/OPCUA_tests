@@ -109,6 +109,29 @@ def animate(i, data):
     plt.pause(0.1)  # Pause for a short time to update the plot
 
 
+def write_value(client, node_id="ns=6;s=MySwitch"):
+    """
+    Writes the value of the specified node.
+
+    Parameters:
+        node_id (str): The node ID of the data to be written.
+    """
+    node = client.get_node(node_id)
+    new_value = ua.Variant("True", ua.VariantType.Boolean)
+    # Verify that the node exists
+    if node:
+        # Set a new value to the variable (node)
+        pre_value = node.get_value()
+        if pre_value == False:
+            new_value = True  # Replace with the value you want to set
+        else:
+            new_value = False  # Replace with the value you want to set
+        node.set_value(new_value)
+        print(f"Set value {new_value} to node {node_id}")
+    else:
+        print(f"Node {node_id} not found on the server.")
+
+
 def main():
     """
     Main function that manages the connection to the OPC UA server and executes
@@ -124,13 +147,14 @@ def main():
         node_id = "ns=3;i=1003"
         # Example usage
         read_value(client, node_id)
-        # browse_child_node(client, "ns=6;s=MyDevice")
+        browse_child_node(client, "ns=6;s=MyDevice")
         input_args = [
             ua.Variant("sin", ua.VariantType.String),
             ua.Variant(60, ua.VariantType.Double),
         ]
         call_method(client, "ns=6;s=MyDevice", "ns=6;s=MyMethod", input_args)
         # call_method2(client, "ns=6;s=MyMethod", input_args)
+        write_value(client, "ns=6;s=MySwitch")
 
         # Deque to store the latest data points for real-time plotting
         data = deque(maxlen=30)  # Keep the last 100 data points
